@@ -2900,6 +2900,75 @@ function handleBackButton() {
     Telegram.WebApp.close();
   }
 }
+
+  // Переопределяем обработчики для страницы товаров
+function initSwipeHandlers() {
+  // Обработчик свайпа вверх на главной странице (оставляем без изменений)
+  mainPage.addEventListener('touchstart', handleTouchStart, { passive: true });
+  mainPage.addEventListener('touchmove', handleTouchMove, { passive: false });
+  mainPage.addEventListener('touchend', handleTouchEnd);
+  
+  // Новые обработчики для страницы товаров
+  productsPage.addEventListener('touchstart', function(e) {
+    // Разрешаем свайп только если начали с пустой области или товаров
+    const isSwipeArea = !e.target.closest('.products-header') && 
+                       !e.target.closest('.search-container') &&
+                       !e.target.closest('.toolbar') &&
+                       !e.target.closest('.categories-dropdown') &&
+                       !e.target.closest('.segmented') &&
+                       window.scrollY <= 0;
+    
+    if (productsPageVisible && isSwipeArea) {
+      startY = e.touches[0].clientY;
+      productsPage.classList.add('swipe-active');
+    }
+  }, { passive: true });
+
+  productsPage.addEventListener('touchmove', function(e) {
+    if (!productsPageVisible) return;
+    
+    const isSwipeArea = !e.target.closest('.products-header') && 
+                       !e.target.closest('.search-container') &&
+                       !e.target.closest('.toolbar') &&
+                       !e.target.closest('.categories-dropdown') &&
+                       !e.target.closest('.segmented');
+    
+    if (!isSwipeArea) return;
+    
+    currentY = e.touches[0].clientY;
+    const deltaY = currentY - startY;
+    
+    if (window.scrollY <= 0 && deltaY > 0) {
+      e.preventDefault();
+      productsPage.style.opacity = `${1 - deltaY / 300}`;
+    }
+  }, { passive: false });
+
+  productsPage.addEventListener('touchend', function(e) {
+    if (!productsPageVisible) return;
+    
+    const isSwipeArea = !e.target.closest('.products-header') && 
+                       !e.target.closest('.search-container') &&
+                       !e.target.closest('.toolbar') &&
+                       !e.target.closest('.categories-dropdown') &&
+                       !e.target.closest('.segmented');
+    
+    if (!isSwipeArea) {
+      productsPage.classList.remove('swipe-active');
+      productsPage.style.opacity = '1';
+      return;
+    }
+    
+    const deltaY = currentY - startY;
+    productsPage.classList.remove('swipe-active');
+    
+    if (deltaY > 100 && window.scrollY <= 0) {
+      hideProductsPage();
+    } else {
+      productsPage.style.opacity = '1';
+    }
+  });
+}
 </script>
 </body>
 </html>

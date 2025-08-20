@@ -2159,6 +2159,54 @@
       opacity: 0.05;
     }
 
+    /* Стили для модального окна карты */
+#card-modal .payment-modal-content {
+  max-width: 400px;
+  padding: 24px;
+}
+
+#card-modal .payment-form-row {
+  margin-bottom: 20px;
+}
+
+#card-modal .payment-form-label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 14px;
+  color: var(--muted);
+}
+
+#card-modal .payment-form-input {
+  width: 100%;
+  padding: 14px;
+  border-radius: var(--radius);
+  border: 1px solid rgba(255,255,255,0.1);
+  background: rgba(255,255,255,0.05);
+  color: var(--text);
+  font-size: 16px;
+  transition: all 0.3s var(--ios-ease);
+}
+
+#card-modal .payment-form-input:focus {
+  border-color: var(--accent);
+  background: rgba(255,255,255,0.08);
+  box-shadow: 0 0 0 2px var(--accent);
+}
+
+#success-modal .payment-modal-content {
+  text-align: center;
+  padding: 30px;
+}
+
+#success-modal h3 {
+  margin: 20px 0 10px;
+  color: #4CAF50;
+}
+
+#success-modal p {
+  color: var(--muted);
+  margin-bottom: 25px;
+}
     /* Анимации */
     @keyframes spin {
       to { transform: rotate(360deg); }
@@ -2743,6 +2791,55 @@
       <button class="payment-btn" style="margin-top: 15px;" onclick="hidePaymentModal()">Отмена</button>
     </div>
   </div>
+
+<!-- Модальное окно для добавления карты -->
+<div id="card-modal" class="payment-modal">
+  <div class="payment-modal-content">
+    <h2>Добавить банковскую карту</h2>
+    
+    <div class="payment-form-row">
+      <label class="payment-form-label">Номер карты</label>
+      <input type="text" class="payment-form-input" id="cardNumberInput" placeholder="1234 5678 9012 3456" maxlength="19">
+      <div id="cardBrand" class="payment-auto-brand"></div>
+    </div>
+    
+    <div class="payment-form-row">
+      <label class="payment-form-label">Имя держателя</label>
+      <input type="text" class="payment-form-input card-holder-input" id="cardHolderInput" placeholder="IVAN IVANOV">
+    </div>
+    
+    <div class="payment-form-grid">
+      <div class="payment-form-row">
+        <label class="payment-form-label">Срок действия</label>
+        <input type="text" class="payment-form-input" id="cardExpiryInput" placeholder="MM/ГГ" maxlength="5">
+      </div>
+      <div class="payment-form-row">
+        <label class="payment-form-label">CVC/CVV</label>
+        <input type="password" class="payment-form-input" id="cardCvcInput" placeholder="123" maxlength="4" inputmode="numeric">
+      </div>
+    </div>
+    
+    <div class="payment-form-row">
+      <button class="payment-btn" id="deleteCardBtn" style="background: rgba(255,59,48,.1); color: #ff3b30; display: none;">Удалить карту</button>
+    </div>
+    
+    <div class="payment-form-row">
+      <button class="payment-pay" id="saveCardBtn">Сохранить карту</button>
+    </div>
+    
+    <button class="payment-btn" style="margin-top: 10px;" onclick="hideAddCardModal()">Отмена</button>
+  </div>
+</div>
+
+<!-- Успешное пополнение -->
+<div id="success-modal" class="payment-modal">
+  <div class="payment-modal-content" style="text-align: center;">
+    <div class="payment-success-checkmark"></div>
+    <h3>Пополнение успешно!</h3>
+    <p id="success-amount">Сумма: 0 P</p>
+    <button class="payment-pay" onclick="hideSuccessModal()">OK</button>
+  </div>
+</div>
 
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
@@ -3975,6 +4072,49 @@ function selectPaymentMethod(method) {
   hidePaymentModal();
   alert(`Выбран способ оплаты: ${method}`);
   // Здесь можно добавить логику для разных способов оплаты
+}
+
+// Функции для модального окна карты
+function showCardModal() {
+  document.getElementById('card-modal').classList.add('show');
+  document.getElementById('cardNumberInput').focus();
+  // Очищаем поля при открытии
+  document.getElementById('cardNumberInput').value = '';
+  document.getElementById('cardHolderInput').value = '';
+  document.getElementById('cardExpiryInput').value = '';
+  document.getElementById('cardCvcInput').value = '';
+  document.getElementById('cardBrand').textContent = '';
+  document.getElementById('cardBrand').classList.remove('show');
+  document.getElementById('deleteCardBtn').style.display = 'none';
+  triggerVibration();
+}
+
+function hideAddCardModal() {
+  document.getElementById('card-modal').classList.remove('show');
+}
+
+function hideSuccessModal() {
+  document.getElementById('success-modal').classList.remove('show');
+}
+
+// Обработчики для модального окна карты
+document.getElementById('saveCardBtn').addEventListener('click', saveCard);
+document.getElementById('deleteCardBtn').addEventListener('click', deleteCard);
+document.getElementById('cardNumberInput').addEventListener('input', formatCardNumber);
+document.getElementById('cardExpiryInput').addEventListener('input', formatExpiry);
+
+// Обновите функцию addNewCard
+function addNewCard() {
+  showCardModal();
+}
+
+// Обновите функцию showPaymentModal (другие способы оплаты)
+function showPaymentModal() {
+  document.getElementById('payment-modal').classList.add('show');
+}
+
+function hidePaymentModal() {
+  document.getElementById('payment-modal').classList.remove('show');
 }
 </script>
 </body>

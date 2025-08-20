@@ -2972,6 +2972,49 @@ function initSwipeHandlers() {
     }
   });
 }
+
+// Блокировка масштабирования только при мультитаче
+let isScrolling = false;
+
+document.addEventListener('touchstart', function(e) {
+  if (e.touches.length > 1) {
+    e.preventDefault();
+  }
+}, { passive: false });
+
+// Разрешаем скролл внутри элементов
+document.addEventListener('touchmove', function(e) {
+  const target = e.target;
+  const isScrollable = target.closest('.scrollable');
+  
+  if (!isScrollable && e.touches.length > 1) {
+    e.preventDefault();
+  }
+}, { passive: false });
+
+// Блокировка жестов масштабирования
+document.addEventListener('gesturestart', function(e) {
+  e.preventDefault();
+});
+
+document.addEventListener('gesturechange', function(e) {
+  e.preventDefault();
+});
+
+// Быстрые тапы (для zoom)
+let lastTouchEnd = 0;
+document.addEventListener('touchend', function(event) {
+  const now = Date.now();
+  if (now - lastTouchEnd <= 300) {
+    const target = event.target;
+    const isScrollable = target.closest('.scrollable');
+    
+    if (!isScrollable) {
+      event.preventDefault();
+    }
+  }
+  lastTouchEnd = now;
+}, false);
 </script>
 </body>
 </html>
